@@ -1,0 +1,60 @@
+[project]
+name = "claims-pipeline"
+version = "0.1.0"
+description = "FHIR R4 healthcare claims lakehouse: Airflow + PySpark + Delta Lake, with a revenue-cycle dashboard."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = { text = "MIT" }
+dependencies = [
+    "deltalake>=1.0",
+    "pandas>=2.2",
+]
+
+[project.optional-dependencies]
+spark = [
+    "pyspark>=4.0,<4.3",
+    "delta-spark>=4.0,<4.5",
+]
+dashboard = [
+    "streamlit>=1.40",
+    "plotly>=6.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "ruff>=0.8",
+    "pre-commit>=4",
+    "fhir.resources>=8",
+]
+demo = [
+    "playwright>=1.50",
+]
+
+[project.scripts]
+claims-pipeline = "claims_pipeline.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/claims_pipeline"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests", "dags", "dashboard", "scripts"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+# The formatter owns code width; remaining long lines are SQL, JS and UI strings.
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["claims_pipeline"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/unit"]
+addopts = "-q"
+markers = ["spark: tests that start a local SparkSession"]
